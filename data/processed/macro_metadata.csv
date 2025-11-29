@@ -1,0 +1,19 @@
+sheet_name,series_id,description,pillar,frequency,transformation,source
+ECB Main Refinancing Rate,ecb_main_refi,Taux directeur BCE principal,Politique monétaire,Mensuel,niveau,Bloomberg
+Italy Manufacturing Confidence,it_manufacturing_confidence,Confiance manufacturière Italie,Entreprises,Mensuel,niveau,Bloomberg
+France Manufacturing PMI,fr_manufacturing_pmi,PMI manufacturier France,Entreprises,Mensuel,niveau,Bloomberg
+Germany IFO Business Climate,de_ifo_business_climate,Climat des affaires IFO Allemagne,Entreprises,Mensuel,niveau,Bloomberg
+Japan Jobless Rate,jp_jobless_rate,Taux de chômage Japon,Consommateurs / Marché du travail,Mensuel,niveau,Bloomberg
+US FOMC Rate Decision (Upper Bo,us_fed_funds_upper,Fourchette haute Fed Funds,Politique monétaire,Mensuel,niveau,Bloomberg
+US Univ. of Michigan Sentiment,us_michigan_sentiment,Sentiment des consommateurs (U. Michigan),Consommateurs,Mensuel,niveau,Bloomberg
+EC Economic Sentiment Indicator,ea_economic_sentiment,Indice de sentiment économique zone euro,Entreprises,Mensuel,niveau,Bloomberg
+France CPI YoY,fr_cpi_yoy,Inflation annuelle France,Inflation,Mensuel,variation annuelle,Bloomberg
+US Change in Nonfarm Payrolls,us_nfp_change,Variation mensuelle des emplois NFP,Marché du travail,Mensuel,niveau,Bloomberg
+Japan Industrial Production MoM,jp_industrial_production_mom,Production industrielle Japon (MoM),Entreprises,Mensuel,variation mensuelle,Bloomberg
+US Initial Jobless Claims,us_initial_claims,Nouvelles demandes d'allocations chômage,Marché du travail,Hebdomadaire,niveau,Bloomberg
+US CPI MoM,us_cpi_mom,Inflation mensuelle US,Inflation,Mensuel,variation mensuelle,Bloomberg
+US ISM Manufacturing PMI,us_ism_manufacturing,PMI manufacturier ISM,Entreprises,Mensuel,niveau,Bloomberg
+EA CPI YoY (HICP),ea_cpi_yoy,Inflation harmonisée zone euro,Inflation,Mensuel,variation annuelle,Bloomberg
+US GDP Annualized QoQ,us_gdp_qoq,PIB annualisé QoQ US,Croissance,Trimestriel,niveau,Bloomberg
+Germany ZEW Expectations,de_zew_expectations,Expectations ZEW Allemagne,Entreprises,Mensuel,niveau,Bloomberg
+Japan GDP SA QoQ,jp_gdp_qoq,PIB Japon (QoQ SA),Croissance,Trimestriel,niveau,Bloomberg
