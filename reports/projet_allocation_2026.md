@@ -82,6 +82,7 @@ Total = 100 %. Les pondérations s’écartent modérément du benchmark égal (
 3. **Coussin cash** pour gérer les incertitudes budgétaires/électorales 2026.
 
 ### Risques clés
+
 1. **Inflation cœur US repart** (hausse salaires) → Fed plus restrictive, perte sur actions US et steepening brutal.
 2. **Choc géopolitique Europe** (énergie) → break-even inflation remonte, Bunds moins protecteurs.
 3. **Erreur de régime du modèle** : si les indicateurs de confiance se dégradent simultanément (ISM <45 + Sentiment <50), notre probabilité de récession passerait >30 %, nécessitant une réduction forte des actions.
