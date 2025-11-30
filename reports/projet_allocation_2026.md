@@ -5,22 +5,23 @@
 ### Outil quantitatif : cycle Markov (4 régimes) + filtre de Kalman
 - Le modèle de Markov à **4 régimes** (Récession, Reprise, Boom, Ralentissement) appliqué au PIB US (`us_gdp_qoq`) fournit les probabilités de chaque phase ; le filtre de Kalman agrège les indicateurs avancés (ISM, Michigan, NFP, Initial Claims) pour capturer le momentum.
 - Dernière observation (nov. 2025) : `reprise` domine à **93,9 %** (récession 4,7 %, ralentissement 1,1 %, boom 0,3 %).  
-  Probabilités synthétiques arrondies : Markov **5,2 %**, Kalman **16,9 %**, **blend 10,8 %** (formule \(0{,}6\,p_M + 0{,}4\,p_K + p_M p_K\) plafonnée à 1).  
-  → La probabilité reste basse en régime normal mais grimpe fortement dès que les deux signaux se tendent (pics ≈1 en 1973, 2008, 2020).
-- Les **quatre indicateurs avancés** retenus couvrent les principaux piliers, avec un minimum d’informations “métier” :
-  1. ISM Manufacturing PMI – enquête mensuelle de l’Institute for Supply Management (~300 directeurs achats). Diffusion base 50 : >50 = expansion industrielle (soutient la croissance, justifie une politique monétaire plus restrictive), <50 = contraction (pression sur les marges, plaide pour un assouplissement).
+  Probabilités synthétiques arrondies : Markov **5,2 %**, Kalman **16,9 %**, **blend 10,8 %** (formule (0,6*p_M + 0,4*p_K + p_M*p_K) plafonnée à 1).  
+  → La probabilité reste basse en régime normal mais grimpe fortement dès que les deux signaux se tendent (pics ≈1 en 2008, 2020).
+- Les **quatre indicateurs avancés** retenus couvrent les principaux piliers :
+
+  1. **ISM Manufacturing PMI** – enquête mensuelle de l’Institute for Supply Management (~300 directeurs achats). Diffusion base 50 : >50 = expansion industrielle (soutient la croissance, justifie une politique monétaire plus restrictive), <50 = contraction (pression sur les marges, plaide pour un assouplissement).
   
   Cet indicateur capte directement le momentum de l’activité manufacturière, via les commandes, la production et l’emploi. Comme l’industrie est cyclique et réagit en amont aux variations de la demande, le PMI est un signal avancé du cycle économique : un repli durable sous 50 anticipe généralement un ralentissement du PIB. Il influence les anticipations de la Fed car une activité industrielle forte se traduit souvent par tensions sur l’offre et sur les prix, donc un risque inflationniste, alors qu’un repli reflète une désinflation future.
   
-  2. Sentiment des ménages U. Michigan – enquête téléphonique (~500 foyers, indice base 1966=100). Niveau <60 = prudence des ménages ⇒ consommation fragilisée et argument pour une Fed accommodante ; >80 = confiance élevée, risque de surchauffe.
+  2. **Sentiment des ménages U. Michigan** – enquête téléphonique (~500 foyers, indice base 1966=100). Niveau <60 = prudence des ménages ⇒ consommation fragilisée et argument pour une Fed accommodante ; >80 = confiance élevée, risque de surchauffe.
   
   Cet indicateur reflète la perception des ménages sur leur situation financière et sur l’économie à venir. Il est essentiel car la consommation représente environ 70 % du PIB américain. Un moral élevé favorise la dépense, la croissance et potentiellement l’inflation, tandis qu’un moral en berne signale une contraction de la demande et un risque de ralentissement. C’est donc un baromètre avancé du cycle domestique, très suivi par la Fed pour ajuster son ton monétaire.
 
-  3. Initial Jobless Claims – statistique hebdomadaire exhaustive du Département du Travail (toutes les demandes d’allocations). Une valeur durablement >300k signale un retournement du marché du travail (frein à la croissance, baisse de l’inflation salariale).  
+  3. **Initial Jobless Claims** – statistique hebdomadaire exhaustive du Département du Travail (toutes les demandes d’allocations). Une valeur durablement supérieure à 300 000 demandes hebdomadaires indique que les licenciements augmentent de manière significative, ce qui montre que les entreprises commencent à réduire leurs effectifs en prévision d’un ralentissement de la demande ou d’une pression accrue sur leurs marges. Lorsque ce seuil est dépassé plusieurs semaines d’affilée, cela signale un retournement du marché du travail : les pertes d’emploi montent, les embauches ralentissent, diminue, ce qui freine la progression des salaires. Cette dégradation du marché de l’emploi entraîne une baisse de la consommation, pèse sur la croissance future et contribue mécaniquement à réduire l’inflation salariale, un élément que la Fed surveille de très près.
 
-  Ces chiffres sont un indicateur à haute fréquence de la santé du marché de l’emploi. Une hausse des inscriptions au chômage traduit une baisse de la demande de travail, qui précède souvent une montée du chômage et un ralentissement économique. À l’inverse, des niveaux bas (<250k) reflètent un marché du travail tendu, avec pressions salariales susceptibles d’alimenter l’inflation. L’emploi étant un pilier de la mission de la Fed, ces données influencent directement ses arbitrages entre soutien à la croissance et lutte contre l’inflation.
+  Ces chiffres sont un indicateur à haute fréquence de la santé du marché de l’emploi. Une hausse des inscriptions au chômage traduit une baisse de la demande de travail, qui précède souvent une montée du chômage et un ralentissement économique. À l’inverse, des niveaux bas (<250k) reflètent un marché du travail tendu, avec pressions salariales susceptibles d’alimenter l’inflation. L’emploi étant un pilier de la mission de la Fed, ces données influencent directement ses arbitrages entre soutien à la croissance et lutte contre l’inflation. 
 
-  4. Variation mensuelle des Nonfarm Payrolls (NFP) – enquête BLS auprès d’environ 130 000 entreprises et 60 000 ménages. Seuil d’équilibre ≈100 000 emplois : en dessous, chômage en hausse ; au-dessus, vigilance sur l’inflation salariale.
+  4. **Variation mensuelle des Nonfarm Payrolls (NFP)** – enquête BLS auprès d’environ 130 000 entreprises et 60 000 ménages. Seuil d’équilibre ≈100 000 emplois : en dessous, chômage en hausse ; au-dessus, vigilance sur l’inflation salariale.
   
   Les NFP mesurent la création nette d’emplois hors secteur agricole et constituent un indicateur central du cycle du travail. Un rythme de créations supérieur à 100 000 reflète une économie en expansion, susceptible de renforcer la consommation et l’inflation, tandis qu’un rythme inférieur traduit une perte de vitesse du cycle et un probable assouplissement monétaire. Les marchés réagissent fortement à ce chiffre, car il concentre les signaux de croissance, d’emploi et d’inflation.
 
@@ -34,9 +35,9 @@ La standardisation en z-score permet de comparer des indicateurs hétérogènes 
 - **Inflation au détail** : CPI US MoM à 0,3 % et HICP zone euro 2,1 % YoY. Le pouvoir d’achat cesse d’être érodé, ce qui soutient la consommation 2024‑2025.
 
 ### Entreprises
-- Les PMI manufacturiers restent sous 50 (US ISM 48,7, France 44,9 env.) mais la dynamique s’améliore (IFO Allemagne 88,4, Sentiment économique zone euro 96,8).
+- Les PMI manufacturiers restent sous 50 (US ISM 48,7, France 44,8 env.) mais la dynamique s’améliore (IFO Allemagne 88,4, Sentiment économique zone euro 96,8).
 - Les enquêtes ZEW/IFO indiquent un redressement des commandes export en 2025, même si la production japonaise reste erratique (volatilité MoM).
-- Conclusion : 2024 reste une année de normalisation industrielle, mais la marge bénéficiaire se maintient grâce au ralentissement des coûts salariaux et de l’énergie.
+- Conclusion : 2025 reste une année de normalisation industrielle, mais la marge bénéficiaire se maintient grâce au ralentissement des coûts salariaux et de l’énergie.
 
 ### Politiques monétaire et budgétaire
 - **FED** : fourchette haute Fed Funds à 4,00 % (contre 5,5 % à mi‑2023) > trajectoire déjà accommodante. Deux baisses supplémentaires sont anticipées sur S2 2025 puis stabilité en 2026 tant que l’inflation cœur reste >2 %.
@@ -49,11 +50,11 @@ La standardisation en z-score permet de comparer des indicateurs hétérogènes 
 
 ## Bloc 2 – Scénario financier
 
-| Classe d’actifs | Hypothèses 2024‑2026 | Lien macro |
+| Classe d’actifs | Hypothèses 2025‑2026 | Lien macro |
 | --- | --- | --- |
 | Actions US (SPX) | Croissance des BPA +5 %/an grâce à la résilience conso, multiples stables (PER 19x). | Prob. récession faible et inflation maîtrisée ⇒ prime de risque stable. |
 | Actions EURO (SX5E) | Surperformance relative vs US si euro reste <1,10 ; gains attendus +6 %/an via reprise industrielle. | PMI/IFO repartent, BCE plus accommodante → re-rating cyclique. |
-| US Treasuries 10Y (USGG10) | Taux terminal 3,75 % fin 2026 (contre 4,4 % actuels). Portage + convexité positive. | Fed en easing graduel car inflation core converge vers 2,3 %. |
+| US Treasuries 10Y (USGG10) | Taux terminal 3,75 % fin 2026 (contre 4 % actuels). Portage + convexité positive. | Fed en easing graduel car inflation core converge vers 2,3 %. |
 | US Treasuries 2Y (USGG2) | Forte sensibilité à timing des baisses (range 4,0‑4,5 %). Rendement réel encore attractif pour parking. | Politique monétaire encore restrictive → portage élevé mais volatil. |
 | Bund 10Y (GDBR10) | Rendement 2,0 % fin 2026, prime de terme basse. | BCE finira ses coupes avant Fed, inflation cœur <2 %. |
 | Bund 2Y (GDBR2) | Rendement 2,1‑2,3 % (flat). Utilisé pour protéger contre un scénario hawkish BCE. | Data dépendante BCE ; Foothold sur cash en EUR. |
@@ -83,7 +84,6 @@ Total = 100 %. Les pondérations s’écartent modérément du benchmark égal (
 ### Risques clés
 1. **Inflation cœur US repart** (hausse salaires) → Fed plus restrictive, perte sur actions US et steepening brutal.
 2. **Choc géopolitique Europe** (énergie) → break-even inflation remonte, Bunds moins protecteurs.
-3. **Erreur de régime du modèle** : si les indicateurs de confiance se dégradent simultanément (ISM <45 + Sentiment <50), notre probabilité de récession passerait >30 %, nécessitant une réduction forte des actions.*** End Patch
-
+3. **Erreur de régime du modèle** : si les indicateurs de confiance se dégradent simultanément (ISM <45 + Sentiment <50), notre probabilité de récession passerait >30 %, nécessitant une réduction forte des actions.
 
 
