@@ -281,26 +281,35 @@ def build_kalman_prob(signal: pd.Series) -> pd.Series:
     filt_values = list(kalman_filter(signal.values))
     state = pd.Series(filt_values, index=signal.index, name="kalman_state")
     state_norm = zscore(state)
-    prob = 1 / (1 + np.exp(-state_norm))
+    # État négatif = indicateurs dégradés -> probabilité de stress élevée.
+    stress_state = -state_norm
+    prob = 1 / (1 + np.exp(-stress_state))
     prob.name = "kalman_prob"
     return prob
 
 
-def main() -> None:
+def compute_cycle_probabilities(panel: pd.DataFrame) -> pd.DataFrame:
     """
-    Pipeline principal :
-    1) Charge le panel
-    2) Estime le Markov (4 régimes) et resample en fin de mois
-    3) Calcule le Kalman
-    4) Fusionne les probabilités (Markov/Kalman/blend)
-    5) Exporte un CSV avec toutes les colonnes utiles
+    Calcule l’ensemble des probabilités (Markov, Kalman, blend) ainsi que la phase.
+
+    Parameters
+    ----------
+    panel : pd.DataFrame
+        Panel macro complet resamplé au besoin.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame indexé par date contenant :
+        - Probabilités Markov par régime (`*_prob`)
+        - Phase dominante (`cycle_phase`)
+        - `markov_prob`, `kalman_prob`, `blended_prob`
     """
-    panel = load_panel()
     monthly = panel.resample("ME").last()
 
     # Markov sur PIB QoQ (quarterly)
     gdp = panel["us_gdp_qoq"].dropna()
-    regime_probs, regime_mu = estimate_markov_probs(gdp)
+    regime_probs, _ = estimate_markov_probs(gdp)
     regime_monthly = regime_probs.resample("ME").ffill()
     cycle_phase = regime_monthly.idxmax(axis=1).rename("cycle_phase")
     recession_col = regime_monthly.get("recession_prob")
@@ -329,7 +338,7 @@ def main() -> None:
     blended = (base + interaction).clip(0, 1)
     blended.name = "blended_prob"
 
-    out_df = pd.concat(
+    return pd.concat(
         [
             regime_aligned,
             cycle_aligned,
@@ -339,6 +348,14 @@ def main() -> None:
         ],
         axis=1,
     ).dropna(subset=["markov_prob", "kalman_prob", "blended_prob"])
+
+
+def main() -> None:
+    """
+    Pipeline principal autonome : charge le panel, calcule les probabilités et écrit un CSV.
+    """
+    panel = load_panel()
+    out_df = compute_cycle_probabilities(panel)
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     out_df.to_csv(OUTPUT_PATH, index_label="date")
     print(f"Probabilités enregistrées dans {OUTPUT_PATH}")
