@@ -1,90 +1,70 @@
 # Projet d'allocation d'actifs – 2026
 
-## Bloc 1 – Scénario économique
+## Bloc 1 – Scénario économique (choix discrétionnaire)
 
-### Outil quantitatif : cycle Markov (4 régimes) + filtre de Kalman
-- Le modèle de Markov à **4 régimes** (Récession, Reprise, Boom, Ralentissement) appliqué au PIB US (`us_gdp_qoq`) fournit les probabilités de chaque phase ; le filtre de Kalman agrège les indicateurs avancés (ISM, Michigan, NFP, Initial Claims) pour capturer le momentum.
-- Dernière observation (nov. 2025) : `reprise` domine à **93,9 %** (récession 4,7 %, ralentissement 1,1 %, boom 0,3 %).  
-  Probabilités synthétiques arrondies : Markov **5,2 %**, Kalman **16,9 %**, **blend 10,8 %** (formule (0,6*p_M + 0,4*p_K + p_M*p_K) plafonnée à 1).  
-  → La probabilité reste basse en régime normal mais grimpe fortement dès que les deux signaux se tendent (pics ≈1 en 2008, 2020).
-- Les **quatre indicateurs avancés** retenus couvrent les principaux piliers :
+**Narratif retenu : hard landing US début 2026**, récession technique sur trois trimestres, PIB réel 2026 autour de ‑2 % a/a. L’Europe suit avec retard (croissance proche de 0), mais sans crise financière.
 
-  1. **ISM Manufacturing PMI** – enquête mensuelle de l’Institute for Supply Management (~300 directeurs achats). Diffusion base 50 : >50 = expansion industrielle (soutient la croissance, justifie une politique monétaire plus restrictive), <50 = contraction (pression sur les marges, plaide pour un assouplissement).
-  
-  Cet indicateur capte directement le momentum de l’activité manufacturière, via les commandes, la production et l’emploi. Comme l’industrie est cyclique et réagit en amont aux variations de la demande, le PMI est un signal avancé du cycle économique : un repli durable sous 50 anticipe généralement un ralentissement du PIB. Il influence les anticipations de la Fed car une activité industrielle forte se traduit souvent par tensions sur l’offre et sur les prix, donc un risque inflationniste, alors qu’un repli reflète une désinflation future.
-  
-  2. **Sentiment des ménages U. Michigan** – enquête téléphonique (~500 foyers, indice base 1966=100). Niveau <60 = prudence des ménages ⇒ consommation fragilisée et argument pour une Fed accommodante ; >80 = confiance élevée, risque de surchauffe.
-  
-  Cet indicateur reflète la perception des ménages sur leur situation financière et sur l’économie à venir. Il est essentiel car la consommation représente environ 70 % du PIB américain. Un moral élevé favorise la dépense, la croissance et potentiellement l’inflation, tandis qu’un moral en berne signale une contraction de la demande et un risque de ralentissement. C’est donc un baromètre avancé du cycle domestique, très suivi par la Fed pour ajuster son ton monétaire.
+- **Chocs appliqués (voir `notebooks/scenario_dashboard.ipynb`, overrides 2026)**  
+  `us_gdp_qoq –10 % annualisé`, `ISM 34`, `Michigan 40`, `Initial claims +150 %`, `NFP –500 k`, `CPI MoM –0,4 %`. chocs uniquement sur les projections 2026, historique inchangé.
+- **Consommateurs** : moral bas (Michigan 40) et marché du travail qui se retourne (claims >300k, NFP négatifs) → consommation recule dès T1 2026, désinflation rapide via baisse des salaires.
+- **Entreprises** : ISM 34 → contraction profonde de la production et des commandes ; marges sous pression, gel du capex et de l’emploi.
+- **Politiques monétaire et budgétaire** : Fed coupe vers 2,50 % fin 2026 ; reprise du QE en cas de stress de liquidité. Budgets US/UE laissent jouer les stabilisateurs automatiques, avec soutien ciblé à l’industrie/emploi.
+- **Commerce international** : demande mondiale molle, dollar plus fort → export US pénalisées ; zone euro affectée via chaînes industrielles mais bénéficie d’énergie moins chère.
 
-  3. **Initial Jobless Claims** – statistique hebdomadaire exhaustive du Département du Travail (toutes les demandes d’allocations). Une valeur durablement supérieure à 300 000 demandes hebdomadaires indique que les licenciements augmentent de manière significative, ce qui montre que les entreprises commencent à réduire leurs effectifs en prévision d’un ralentissement de la demande ou d’une pression accrue sur leurs marges. Lorsque ce seuil est dépassé plusieurs semaines d’affilée, cela signale un retournement du marché du travail : les pertes d’emploi montent, les embauches ralentissent, diminue, ce qui freine la progression des salaires. Cette dégradation du marché de l’emploi entraîne une baisse de la consommation, pèse sur la croissance future et contribue mécaniquement à réduire l’inflation salariale, un élément que la Fed surveille de très près.
+## Bloc 2 – Scénario financier et outil quantitatif
 
-  Ces chiffres sont un indicateur à haute fréquence de la santé du marché de l’emploi. Une hausse des inscriptions au chômage traduit une baisse de la demande de travail, qui précède souvent une montée du chômage et un ralentissement économique. À l’inverse, des niveaux bas (<250k) reflètent un marché du travail tendu, avec pressions salariales susceptibles d’alimenter l’inflation. L’emploi étant un pilier de la mission de la Fed, ces données influencent directement ses arbitrages entre soutien à la croissance et lutte contre l’inflation. 
+### Outil quanti 
+- Modèle **Markov 4 régimes** sur `us_gdp_qoq` + **Kalman** sur indicateurs avancés (ISM, Michigan, claims, NFP) → probabilité de récession.
+- Baseline (nov. 2025) : blend ≈ **11 %** (phase « reprise »).  
+  Scénario chocs 2026 : Markov = **1**, Kalman ≈ **0,964**, **blend ≈ 1** → régime « récession » quasi certain pendant le choc.
 
-  4. **Variation mensuelle des Nonfarm Payrolls (NFP)** – enquête BLS auprès d’environ 130 000 entreprises et 60 000 ménages. Seuil d’équilibre ≈100 000 emplois : en dessous, chômage en hausse ; au-dessus, vigilance sur l’inflation salariale.
-  
-  Les NFP mesurent la création nette d’emplois hors secteur agricole et constituent un indicateur central du cycle du travail. Un rythme de créations supérieur à 100 000 reflète une économie en expansion, susceptible de renforcer la consommation et l’inflation, tandis qu’un rythme inférieur traduit une perte de vitesse du cycle et un probable assouplissement monétaire. Les marchés réagissent fortement à ce chiffre, car il concentre les signaux de croissance, d’emploi et d’inflation.
+### Traduction financière du scénario
 
-Chaque série est standardisée (z-score) : signe du z-score = contribution (+ = favorable, – = risque). Le panier alimente le filtre de Kalman pour un signal “temps réel” cohérent avec les conséquences macro (croissance, inflation, politique monétaire).
+**Lien direct macro → prix/taux (ce qui sera évalué)**  
+- Chute PIB/ISM → baisse BPA et compression modérée des multiples actions (US/EU).  
+- Claims + NFP négatifs → détente forte des Fed Funds, rally sur la duration US.  
+- Désinflation rapide (CPI -0,4 % MoM) → BCE suit avec retard, soutien aux Bund/OAT.  
+- Dollar plus fort en récession US + demande mondiale faible → actions EU pénalisées mais moins que US si EUR faible.  
+- Liquidité/prudence → poids du cash pour rebalancer si spreads/actions se disloquent.
 
-La standardisation en z-score permet de comparer des indicateurs hétérogènes sur une même échelle, en mesurant leur écart à la moyenne historique. Le filtre de Kalman agrège ces signaux pour extraire une probabilité de phase du cycle (expansion vs ralentissement), traduisant la synthèse entre production, emploi, consommation et confiance. Ce mécanisme fournit une lecture dynamique du cycle économique utile pour anticiper les inflexions de politique monétaire.
-
-### Consommateurs
-- **Sentiment** (U. Michigan) stabilisé à 53,6 (moyenne longue 86) : ménages encore prudents mais en amélioration par rapport au point bas 2022.
-- **Marché du travail US** : Initial claims à 219 k et créations d’emplois encore positives (+22 k NFP) → désinflation sans choc social.
-- **Inflation au détail** : CPI US MoM à 0,3 % et HICP zone euro 2,1 % YoY. Le pouvoir d’achat cesse d’être érodé, ce qui soutient la consommation 2024‑2025.
-
-### Entreprises
-- Les PMI manufacturiers restent sous 50 (US ISM 48,7, France 44,8 env.) mais la dynamique s’améliore (IFO Allemagne 88,4, Sentiment économique zone euro 96,8).
-- Les enquêtes ZEW/IFO indiquent un redressement des commandes export en 2025, même si la production japonaise reste erratique (volatilité MoM).
-- Conclusion : 2025 reste une année de normalisation industrielle, mais la marge bénéficiaire se maintient grâce au ralentissement des coûts salariaux et de l’énergie.
-
-### Politiques monétaire et budgétaire
-- **FED** : fourchette haute Fed Funds à 4,00 % (contre 5,5 % à mi‑2023) > trajectoire déjà accommodante. Deux baisses supplémentaires sont anticipées sur S2 2025 puis stabilité en 2026 tant que l’inflation cœur reste >2 %.
-- **BCE** : taux refi 2,15 % (après pic 4,5 %). La politique reste restrictive mais la désinflation française (0,9 % YoY) autorise des ajustements graduels.
-- Budgets US/UE : soutien ciblé sur industrie (IRA, Net-Zero Industry Act) sans relancer la demande globale ⇒ biais désinflationniste.
-
-### Commerce international / cycle global
-- Probabilité réduite de choc externe : croissance japonaise (PIB SA QoQ) reste volatile mais positive, et la réouverture asiatique soutient les exportateurs européens.
-- Les indicateurs italiens et allemands suggèrent un rebond du commerce intra‑UE à partir de 2025, aligné avec la détente logistique.
-
-## Bloc 2 – Scénario financier
-
-| Classe d’actifs | Hypothèses 2025‑2026 | Lien macro |
+| Classe d’actifs (5) | Hypothèse 2026 | Lien direct avec bloc 1 + probas |
 | --- | --- | --- |
-| Actions US (SPX) | Croissance des BPA +5 %/an grâce à la résilience conso, multiples stables (PER 19x). | Prob. récession faible et inflation maîtrisée ⇒ prime de risque stable. |
-| Actions EURO (SX5E) | Surperformance relative vs US si euro reste <1,10 ; gains attendus +6 %/an via reprise industrielle. | PMI/IFO repartent, BCE plus accommodante → re-rating cyclique. |
-| US Treasuries 10Y (USGG10) | Taux terminal 3,75 % fin 2026 (contre 4 % actuels). Portage + convexité positive. | Fed en easing graduel car inflation core converge vers 2,3 %. |
-| US Treasuries 2Y (USGG2) | Forte sensibilité à timing des baisses (range 4,0‑4,5 %). Rendement réel encore attractif pour parking. | Politique monétaire encore restrictive → portage élevé mais volatil. |
-| Bund 10Y (GDBR10) | Rendement 2,0 % fin 2026, prime de terme basse. | BCE finira ses coupes avant Fed, inflation cœur <2 %. |
-| Bund 2Y (GDBR2) | Rendement 2,1‑2,3 % (flat). Utilisé pour protéger contre un scénario hawkish BCE. | Data dépendante BCE ; Foothold sur cash en EUR. |
-| OAT 10Y (GFRN10) | Spread vs Bund ≈65 pb, bénéfice du carry vs Bund. | France CPI 0,9 % YoY => premium limité, risque budgétaire modéré. |
-| Marché monétaire EUR (ESTRON) | Rendement >2 % jusqu’à début 2026 puis glissement sous 1,75 %. | BCE détend lentement, laisse du rendement de transition. |
+| Actions US (SPX) | -15 % prix, BPA -10 %, PER en baisse modérée (peur récession) | Récession US confirmée par blend 1 → baisse bénéfices et compression légère des multiples. |
+| Actions Europe (SX5E) | -12 % prix, surperformance vs US si EUR <1,05 | Recul export et capex mais soutien budgétaire UE ; dépendance moindre à tech US. |
+| Taux US 10 ans | Rally vers **3,0 %** fin 2026, pente 2s10s se repentit légèrement | Fed coupe agressivement en récession ; achats duration recherchés. |
+| Taux EUR core (Bund/OAT 10 ans) | Bund vers **1,8 %**, OAT vers **2,4 %** | BCE suit Fed avec retard, désinflation rapide ; spread OAT stable avec soutien budgétaire. |
+| Cash EUR (ESTRON) | Rendement glisse de 2 % à 1,2 % | Détente monétaire progressive ; garder du dry powder pendant la récession. |
 
-**Synthèse** : environnement « soft landing » → biais neutre/légèrement pro-risque, mais allocation garde des coussins en monétaire et taux longs EUR pour absorber une erreur de diagnostic.
+## Bloc 3 – Allocation stratégique 2026 (8 lignes, ref 12,5 % chacune)
 
-## Bloc 3 – Allocation stratégique 2026
+Référence : benchmark égal-pondéré 8 lignes × 12,5 %. Si l’on anticipe une baisse marquée des actions en hard landing 2026, on réduit fortement l’exposition actions et on concentre la performance attendue sur la duration longue. Le cash reste présent pour rebalancer en cours d’année si les points d’entrée s’améliorent.
 
-| Ligne | Pondération | Rationale |
-| --- | --- | --- |
-| Actions US (SPX) | **14 %** | Probabilité de récession faible (9 %), bénéfices soutenus par consommation : légère surpondération. |
-| Actions EURO (SX5E) | **13 %** | Repricing cyclique positif (IFO, ZEW), euro encore compétitif → alpha vs US. |
-| US Treasuries 10Y | **11 %** | Duration utile si la Fed relâche plus vite ; maintien pour convexité. |
-| US Treasuries 2Y | **10 %** | Sous-pondération : risque de re-steepening si Fed coupe ; réduire la sensibilité au front-end. |
-| Bund 10Y | **13 %** | Couverture euro + carry « core », profite de la désinflation rapide. |
-| Bund 2Y | **12 %** | Position neutre pour gérer les réinvestissements EUR à court terme. |
-| OAT 10Y | **12 %** | Spread > Bund pour booster le rendement sans changer de devise. |
-| Marché monétaire EUR (ESTRON) | **15 %** | Surpondération cash pour saisir opportunités et amortir choc inflation surprise. |
+**Achats / ventes vs benchmark (Δ en points de %)**
+- Actions coupées nettement : SPX -9,0 ; SX5E -7,0.  
+- Duration longue achetée : US10 +19,5 ; Bund10 +12,5 ; OAT10 +5,5.  
+- Courts réduits : US2 -7,5 ; Bund2 -9,0.  
+- Cash ESTRON -5,0 (léger maintien) pour garder de la flexibilité.
 
-Total = 100 %. Les pondérations s’écartent modérément du benchmark égal (12,5 %) afin de refléter :
-1. **Biais pro-actions** tant que notre outil probabiliste reste <20 %.
-2. **Préférence pour duration long-only en zone euro** (désinflation plus rapide qu’aux US).
-3. **Coussin cash** pour gérer les incertitudes budgétaires/électorales 2026.
+| Ligne (indice) | Poids final | Δ vs 12,5 % | Rationale (hard landing 2026, baisse actions) |
+| --- | --- | --- | --- |
+| Actions US (SPX) | **3,5 %** | -9,0 | Forte sous-pondération : BPA en baisse, compression des multiples ; on garde un minimum pour la convexité de rebond ultérieur. |
+| Actions Europe (SX5E) | **5,5 %** | -7,0 | Sous-pondération mais un léger maintien pour valorisations plus basses et soutien budgétaire UE. |
+| US Treasuries 10Y (USGG10) | **32 %** | +19,5 | Pilier principal : capter la détente Fed en récession, couverture actions. |
+| US Treasuries 2Y (USGG2) | **5 %** | -7,5 | Front-end moins protecteur ; on privilégie la convexité du 10Y. |
+| Bund 10Y (GDBR10) | **25 %** | +12,5 | Duration core EUR pour amortir la récession ; BCE suit avec retard. |
+| Bund 2Y (GDBR2) | **3,5 %** | -9,0 | Réduction du court EUR ; portage moins utile si la BCE coupe. |
+| OAT 10Y (GFRN10) | **18 %** | +5,5 | Carry vs Bund, bénéfice de la détente monétaire en zone euro. |
+| Marché monétaire EUR (ESTRON) | **7,5 %** | -5,0 | Cash maintenu pour rebalancer si les spreads/actions deviennent attractifs. |
+
+Total = 100 %. Lecture : portefeuille très défensif, performance attendue surtout de la duration longue (US/EUR). Actions très réduites pour protéger contre la baisse anticipée, cash pour l’option de renforcement futur. Courts (US2, Bund2) coupés car peu convexes en hard landing.
+
+**Pourquoi cette exposition globale ?**  
+Nous assumons un hard landing avec baisse actions : la source principale de performance devient la duration longue (Fed et BCE qui coupent), les actions sont fortement sous-pondérées pour limiter la baisse, et le cash offre une option d’achat si les valorisations deviennent nettement plus attractives. Les maturités courtes sont réduites car elles apportent moins de protection et de convexité que la longue en récession.
+
+**Cadre temporel**  
+Allocation décidée **début 2026** en vue de la trajectoire projetée **fin 2026** : on se positionne tôt sur la duration, on reste prudent sur les actions tant que le blend reste en régime « récession », et on conserve du cash pour ajuster si le cycle se retourne plus vite que prévu.
 
 ### Risques clés
-
-1. **Inflation cœur US repart** (hausse salaires) → Fed plus restrictive, perte sur actions US et steepening brutal.
-2. **Choc géopolitique Europe** (énergie) → break-even inflation remonte, Bunds moins protecteurs.
-3. **Erreur de régime du modèle** : si les indicateurs de confiance se dégradent simultanément (ISM <45 + Sentiment <50), notre probabilité de récession passerait >30 %, nécessitant une réduction forte des actions.
-
-
+1. **Rebond plus rapide que prévu** (données US se retournent fin 2025) → sous-pondération actions coûteuse, pente US se pentifie brutalement.
+2. **Inflation ré-accélère** (chocs énergie/géopolitique) → baisses de taux limitées, duration pénalisée.
+3. **Stress de liquidité/crédit** non capté par nos indicateurs de flux réels → spreads crédit et actions chutent plus que prévu, nécessité d’augmenter le cash.
