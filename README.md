@@ -62,7 +62,16 @@ pip install -r requirements.txt
    python src/run_scenario.py --config scenarios/us_hard_landing.yaml
    ```
    - Le script charge le panel de base, étend l’horizon jusqu’à la fin du scénario, applique les overrides, recalcule les probabilités et sauvegarde `data/processed/scenarios/scenario_<nom>.csv`.
-   - Pour itérer sans YAML, utilisez `notebooks/scenario_dashboard.ipynb` : activez `USE_CUSTOM_OVERRIDES = True`, éditez la liste `USER_OVERRIDES`, puis exécutez. Le notebook rattache automatiquement la partie historique baseline, applique les chocs sur 2026+ et trace des graphes Markov/Kalman/blend cohérents avec `recession_indicator.ipynb`.
+   - Pour itérer sans YAML, utilisez `notebooks/scenario_dashboard.ipynb` : activez `USE_CUSTOM_OVERRIDES = True`, éditez la liste `USER_OVERRIDES`, puis exécutez. Le notebook rattache automatiquement la partie historique baseline, applique les chocs uniquement sur 2026+ et trace des graphes Markov/Kalman/blend cohérents avec `recession_indicator.ipynb`. Le dossier `notebooks/data` n’est plus utilisé : toutes les sorties sont dans `data/processed/scenarios/`.
+
+## Scénario courant (exemple hard landing 2026)
+- Chocs prospectifs (2026) : `us_gdp_qoq –10 % annualisé`, `ISM 34`, `Michigan 40`, `Initial claims +150 %`, `NFP –500 k`, `CPI MoM –0,4 %`. L’historique reste inchangé.
+- Probabilités obtenues : Markov = 1, Kalman ≈ 0,96, blend ≈ 1 → régime « récession » certain pendant le choc.
+- Rapport synthétique : voir `reports/projet_allocation_2026.md` (bloc 1 macro, bloc 2 lien macro→finance, bloc 3 allocation).
+
+## Allocation 2026 (début 2026, vue fin 2026)
+- Positionnement défensif pour hard landing : actions fortement réduites, duration longue surpondérée (US 10Y, Bund/OAT 10Y), courts réduits, cash conservé pour rebalancer.
+- Détail ligne par ligne dans `reports/projet_allocation_2026.md` (8 lignes vs benchmark 12,5 % chacune).
 
 ## Notes
 
